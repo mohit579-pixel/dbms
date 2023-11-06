@@ -8,3 +8,30 @@ create table new_roll(roll int, name varchar(10));
 insert into old_roll values(1,"priyanka"),(2,"Neha");
 
 insert into new_roll values(3,"riya"),(4,"priya");
+
+DELIMITER //
+CREATE PROCEDURE copyDataToNewTable()
+BEGIN
+  DECLARE done BOOLEAN DEFAULT FALSE;
+  DECLARE roll_no INT;
+  DECLARE s_name VARCHAR(50);
+
+  DECLARE c1 CURSOR FOR SELECT roll, name FROM old_roll;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+  OPEN c1;
+
+  read_loop: LOOP
+    FETCH c1 INTO roll_no, s_name;
+    IF done THEN
+      LEAVE read_loop;
+    END IF;
+
+    IF NOT EXISTS (SELECT * FROM new_roll WHERE roll = roll_no) THEN
+      INSERT INTO new_roll (roll, name) VALUES (roll_no, s_name);
+    END IF;
+  END LOOP;
+
+  CLOSE c1;
+END//
+DELIMITER ;
