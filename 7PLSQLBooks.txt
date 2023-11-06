@@ -1,0 +1,85 @@
+CREATE TABLE Borrower (
+  Roll_no INT(10) PRIMARY KEY,
+  Name VARCHAR(100) NOT NULL,
+  Date_of_Issue DATE NOT NULL,
+  Name_of_Book VARCHAR(100) NOT NULL,
+  Status VARCHAR(1) 
+);
+
+CREATE TABLE Fine (
+  Roll_no INT(10) REFERENCES Borrower(Roll_no),
+  Date DATE NOT NULL,
+  Amt INT(10) NOT NULL,
+  PRIMARY KEY (Roll_no, Date)
+);
+
+
+INSERT INTO Borrower (Roll_no, Name, Date_of_Issue, Name_of_Book, Status)
+VALUES (1, 'Alice', '2023-10-01', 'Book 1', 'I');
+
+INSERT INTO Borrower (Roll_no, Name, Date_of_Issue, Name_of_Book, Status)
+VALUES (2, 'Bob', '2023-09-20', 'Book 2', 'I');
+
+INSERT INTO Borrower (Roll_no, Name, Date_of_Issue, Name_of_Book, Status)
+VALUES (3, 'Charlie', '2023-08-15', 'Book 3', 'R');
+
+show tables;
+
+
+DELIMITER //
+
+CREATE PROCEDURE process_book_return (
+  IN p_roll_no INT,
+  IN p_name_of_book VARCHAR(255)
+)
+BEGIN
+  DECLARE v_date_of_issue DATE;
+  DECLARE v_status VARCHAR(1);
+  DECLARE v_current_date DATE;
+  DECLARE v_fine_amt INT;
+  DECLARE v_days_late INT;
+
+  SET v_current_date = CURDATE();
+
+  -- Retrieve data from the Borrower table
+  SELECT Date_of_Issue, Status
+  INTO v_date_of_issue, v_status
+  FROM Borrower
+  WHERE Roll_no = p_roll_no AND Name_of_Book = p_name_of_book;
+
+  -- Calculate the number of days late
+  SET v_days_late = DATEDIFF(v_current_date, v_date_of_issue);
+
+  -- Check if the book is returned (Status 'I') and days late is greater than 0
+  IF v_status = 'I' AND v_days_late > 0 THEN
+    -- Calculate fine amount based on the number of days late
+    IF v_days_late <= 30 THEN
+      SET v_fine_amt = v_days_late * 5;
+    ELSE
+      SET v_fine_amt = v_days_late * 50;
+    END IF;
+
+    -- Insert the fine details into the Fine table
+    INSERT INTO Fine (Roll_no, Date, Amt)
+    VALUES (p_roll_no, CURRENT_DATE(), v_fine_amt);
+
+    -- Update the Status in the Borrower table to 'R' (Returned)
+    UPDATE Borrower
+    SET Status = 'R'
+    WHERE Roll_no = p_roll_no AND Name_of_Book = p_name_of_book;
+    
+    -- No need to COMMIT in MySQL; it's done automatically.
+
+    SELECT CONCAT('Fine of Rs. ', v_fine_amt, ' has been imposed for ', v_days_late, ' days late return.') AS message;
+  ELSE
+    SELECT 'The book is not late or has already been returned.' AS message;
+  END IF;
+END;
+//
+
+DELIMITER ;
+
+
+call process_book_return(2,"Book 2");
+
+ SELECT * from fine;

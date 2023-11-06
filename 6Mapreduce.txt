@@ -1,0 +1,35 @@
+db.customer.insertMany([
+  { cid: 1, cname: 'Alice', amount: 100, product_name: 'Product A' },
+  { cid: 2, cname: 'Bob', amount: 150, product_name: 'Product B' },
+  { cid: 1, cname: 'Alice', amount: 50, product_name: 'Product C' },
+  { cid: 3, cname: 'Charlie', amount: 200, product_name: 'Product A' },
+  { cid: 2, cname: 'Bob', amount: 80, product_name: 'Product B' },
+  { cid: 3, cname: 'Charlie', amount: 120, product_name: 'Product D' },
+]);
+
+
+
+// Map function
+var mapFunction = function() {
+    emit(this.cid, this.amount);
+};
+
+// Reduce function
+var reduceFunction = function(key, values) {
+    return Array.sum(values);
+};
+
+// Run the MapReduce operation and store the result in a new collection
+db.customer.mapReduce(
+    mapFunction,
+    reduceFunction,
+    {
+        out: "customer_summary" // Specify the output collection
+    }
+);
+
+
+
+show collections
+
+db.customer_summary.find()

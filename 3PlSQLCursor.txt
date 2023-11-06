@@ -1,0 +1,10 @@
+create database students;
+use students;
+
+create table old_roll(roll int, name varchar(10));
+
+create table new_roll(roll int, name varchar(10));
+
+insert into old_roll values(1,"priyanka"),(2,"Neha");
+
+insert into new_roll values(3,"riya"),(4,"priya");

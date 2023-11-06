@@ -1,0 +1,93 @@
+mongosh
+
+
+// Create the "Teachers" collection and insert sample data
+
+db.createCollection("Teachers");
+db.Teachers.insertMany([
+    {
+        Tname: "John Smith",
+        dno: 101,
+        dname: "Computer",
+        experience: 5,
+        salary: 12000,
+        date_of_joining: new Date("2022-01-15")
+    },
+    {
+        Tname: "Mary Johnson",
+        dno: 102,
+        dname: "IT",
+        experience: 7,
+        salary: 11000,
+        date_of_joining: new Date("2021-11-20")
+    },
+    {
+        Tname: "Praveen Kumar",
+        dno: 103,
+        dname: "E&TC",
+        experience: 3,
+        salary: 9500,
+        date_of_joining: new Date("2022-03-05")
+    }
+]);
+
+// Create the "Students" collection and insert sample data
+db.createCollection("Students");
+db.Students.insertMany([
+    {
+        Sname: "Alice",
+        roll_no: 1,
+        class: "A"
+    },
+    {
+        Sname: "Bob",
+        roll_no: 2,
+        class: "B"
+    },
+    {
+        Sname: "Carol",
+        roll_no: 3,
+        class: "A"
+    }
+]);
+
+
+db.Teachers.find().sort({ Tname: 1 });
+
+db.Teachers.find({ dname: "Computer" });
+
+
+db.Teachers.find({ dname: { $in: ["Computer", "IT", "E&TC"] }, salary: { $gte: 10000 } });
+
+
+
+db.Students.find({ $or: [{ roll_no: 2 }, { Sname: "xyz" }] });
+
+
+db.Teachers.update(
+    { Tname: "Praveen Kumar" },
+    { $set: { experience: 10 } },
+    { upsert: true }
+);
+
+
+
+db.Teachers.update(
+    { dname: "IT" },
+    { $set: { dname: "COMP" } },
+    { multi: true }
+);
+
+
+
+db.Teachers.find({}, { Tname: 1, experience: 1, _id: 0 });
+
+
+
+db.Teachers.remove({ dname: "IT" });
+
+
+db.Teachers.find().sort({ Tname: 1 }).limit(3);
+
+
+

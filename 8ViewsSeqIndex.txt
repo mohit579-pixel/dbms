@@ -1,0 +1,72 @@
+CREATE TABLE Students (
+    StudentID INT PRIMARY KEY,
+    StudentName VARCHAR(255) NOT NULL,
+    Class VARCHAR(50),
+    Address VARCHAR(255),
+    EnrolmentDate DATE,
+    CONSTRAINT UK_StudentName UNIQUE (StudentName)
+);
+
+CREATE TABLE Grades (
+    StudentID INT,
+    SubjectName VARCHAR(50),
+    Grade VARCHAR(2),
+    CONSTRAINT FK_Student FOREIGN KEY (StudentID) REFERENCES Students(StudentID)
+);
+
+CREATE TABLE Attendance (
+    StudentID INT,
+    Date DATE,
+    AttendanceStatus VARCHAR(10),
+    CONSTRAINT FK_Student_Attendance FOREIGN KEY (StudentID) REFERENCES Students(StudentID)
+);
+
+
+
+INSERT INTO Students (StudentID, StudentName, Class, Address, EnrolmentDate)
+VALUES
+    (1, 'John Smith', 'Class A', '123 Main St, City', '2022-01-15'),
+    (2, 'Alice Johnson', 'Class B', '456 Elm St, Town', '2022-02-10'),
+    (3, 'Bob Brown', 'Class A', '789 Oak St, Village', '2022-03-20');
+
+
+-- Insert into the Grades table
+INSERT INTO Grades (StudentID, SubjectName, Grade)
+VALUES
+    (1, 'Math', 'A'),
+    (1, 'Science', 'B'),
+    (2, 'Math', 'A+'),
+    (2, 'Science', 'A'),
+    (3, 'Math', 'B'),
+    (3, 'Science', 'C');
+
+
+
+INSERT INTO Attendance (StudentID, Date, AttendanceStatus)
+VALUES
+    (1, '2022-10-01', 'Present'),
+    (1, '2022-10-02', 'Present'),
+    (2, '2022-10-01', 'Present'),
+    (2, '2022-10-02', 'Absent'),
+    (3, '2022-10-01', 'Present'),
+    (3, '2022-10-02', 'Present');
+
+
+
+CREATE VIEW StudentAverageAttendance AS
+SELECT
+    s.StudentID,
+    s.StudentName,
+    AVG(CASE WHEN a.AttendanceStatus = 'Present' THEN 1 ELSE 0 END) AS AverageAttendance
+FROM
+    Students s
+LEFT JOIN
+    Attendance a ON s.StudentID = a.StudentID
+GROUP BY
+    s.StudentID, s.StudentName;
+
+
+CREATE INDEX idx_StudentName ON Students (StudentName);
+
+SHOW INDEXES FROM Students;
+

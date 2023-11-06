@@ -1,0 +1,58 @@
+CREATE TABLE Stud_Marks (
+    name VARCHAR(255),
+    total_marks INT
+);
+
+CREATE TABLE Result (
+    Roll INT,
+    Name VARCHAR(255),
+    Class VARCHAR(50)
+);
+
+INSERT INTO Stud_Marks (name, total_marks)
+VALUES ('John', 950);
+
+INSERT INTO Stud_Marks (name, total_marks)
+VALUES ('Alice', 1000);
+
+INSERT INTO Stud_Marks (name, total_marks)
+VALUES ('Bob', 1100);
+
+-- Add more student records as needed
+
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE proc_Grade (
+    IN p_name VARCHAR(255),
+    IN p_total_marks INT
+)
+BEGIN
+    DECLARE v_class VARCHAR(50);
+
+    IF p_total_marks <= 1500 AND p_total_marks >= 990 THEN
+        SET v_class = 'Distinction';
+    ELSEIF p_total_marks >= 900 AND p_total_marks <= 989 THEN
+        SET v_class = 'First Class';
+    ELSEIF p_total_marks >= 825 AND p_total_marks <= 899 THEN
+        SET v_class = 'Higher Second Class';
+    ELSE
+        SET v_class = 'Other';
+    END IF;
+
+    -- Insert the student's name and class into the Result table
+    INSERT INTO Result (Roll, Name, Class)
+    VALUES (1, p_name, v_class);
+
+    -- Commit the changes
+    COMMIT;
+END//
+
+DELIMITER ;
+
+CALL proc_Grade('Alice',1100);
+
+SELECT * FROM Result;
+
